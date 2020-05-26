@@ -25,17 +25,17 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
- data "template_file" "bucketpolicy" {
-   template = file("bucketpolicy.json")
+# data "template_file" "bucketpolicy" {
+#    template = file("bucketpolicy.json")
 
-   vars = {
-     bucketname = aws_s3_bucket.bucket.bucket
-   }
- }
+#    vars = {
+#      bucketname = aws_s3_bucket.bucket.bucket
+#    }
+# }
 
 
-resource "aws_s3_bucket_policy" "bucket_policy" {
-  bucket = aws_s3_bucket.bucket.id
-  policy = data.template_file.bucketpolicy.rendered
-}
+# resource "aws_s3_bucket_policy" "bucket_policy" {
+#   bucket = aws_s3_bucket.bucket.id
+#   policy = data.template_file.bucketpolicy.rendered
+# }
 
