@@ -5,6 +5,10 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  region = "us-east-1"
+  alias = "east"
+}
 
 
 // Resources
@@ -64,6 +68,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 
 // Domain Certificate
 resource "aws_acm_certificate" "cert" {
+  provider = aws.east
   domain_name       = "static.aec.works"
   validation_method = "DNS"
   tags = {
@@ -77,18 +82,12 @@ resource "aws_acm_certificate" "cert" {
 
 // Cloudfront
 locals {
-  s3_origin_id = "aecworks_s3_origin"
+  s3_origin_id = "s3_prod_origin"
 }
-
-
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
     domain_name = aws_s3_bucket.b["aecworks-bucket-prod"].bucket_regional_domain_name
-    origin_id   = local.s3_origin_id
-  }
-  origin {
-    domain_name = aws_s3_bucket.b["aecworks-bucket-staging"].bucket_regional_domain_name
     origin_id   = local.s3_origin_id
   }
 

@@ -11,5 +11,5 @@ variable "project_name" {
 variable "s3_bucket_names" {
   # https://discuss.hashicorp.com/t/s3-buckets-policies-for-multiple-buckets-using-for-each/4178/3
   type    = set(string)
-  default = ["aecworks-bucket-prod", "aecworks-bucket-staging"]
+  default = ["aecworks-bucket-prod", "aecworks-bucket-staging", "aecworks-bucket-local"]
 }
