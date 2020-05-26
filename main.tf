@@ -93,16 +93,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "Some comment"
-  # default_root_object = "index.html"
 
-  # logging_config {
-  #   include_cookies = false
-  #   bucket          = "mylogs.s3.amazonaws.com"
-  #   prefix          = "myprefix"
-  # }
-
-  # aliases = ["static.aec.works"]
+  aliases = ["static.aec.works"]
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -123,7 +115,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
-  # Cache behavior with precedence 0
   ordered_cache_behavior {
     path_pattern     = "/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -146,41 +137,19 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
-  # Cache behavior with precedence 1
-  # ordered_cache_behavior {
-  #   path_pattern     = "/content/*"
-  #   allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-  #   cached_methods   = ["GET", "HEAD"]
-  #   target_origin_id = local.s3_origin_id
-
-  #   forwarded_values {
-  #     query_string = false
-
-  #     cookies {
-  #       forward = "none"
-  #     }
-  #   }
-
-  #   min_ttl                = 0
-  #   default_ttl            = 3600
-  #   max_ttl                = 86400
-  #   compress               = true
-  #   viewer_protocol_policy = "redirect-to-https"
-  # }
-
-  # price_class = "PriceClass_200"
-
   restrictions {
     geo_restriction {
       restriction_type = "none"
     }
   }
 
-  # tags = {
-  #   Environment = "production"
-  # }
+  tags = {
+    Environment = "production"
+  }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = aws_acm_certificate.cert.arn
+    ssl_support_method = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2018"
   }
 }
