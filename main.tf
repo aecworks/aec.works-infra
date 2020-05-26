@@ -70,7 +70,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   #   prefix          = "myprefix"
   # }
 
-  aliases = ["static.aec.works"]
+  # aliases = ["static.aec.works"]
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
