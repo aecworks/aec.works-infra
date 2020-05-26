@@ -9,8 +9,16 @@ provider "aws" {
 
 // Resources
 
-resource "aws_s3_bucket" "bucket" {
-  bucket = "${var.project_name}-prod"
+// User
+resource "aws_iam_user" "user" {
+  name = "${var.project_name}-svc-user"
+}
+
+
+// Buckets
+resource "aws_s3_bucket" "b" {
+  for_each = var.s3_bucket_names
+  bucket = each.key
   acl    = "public-read"
 
   cors_rule {
@@ -22,22 +30,36 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-
-resource "aws_iam_user" "user" {
-  name = "${var.project_name}-svc-user"
-}
-
-data "template_file" "bucketpolicy" {
-   template = file("policies/bucketpolicy.json")
-   vars = {
-     bucket_arn = aws_s3_bucket.bucket.arn
-     svc_user = aws_iam_user.user.arn
-   }
-}
-
+// Policies
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  bucket = aws_s3_bucket.bucket.id
-  policy = data.template_file.bucketpolicy.rendered
+  for_each = aws_s3_bucket.b
+  bucket = each.key
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "bucketpolicy",
+    Statement = [
+      {
+        Sid       = "S3AppManager"
+        Effect    = "Allow"
+        Principal = {
+          AWS: "${aws_iam_user.user.arn}"
+        }
+        Action    = [
+          "s3:PutObject",
+          "s3:GetObjectAcl",
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:DeleteObject",
+          "s3:PutObjectAcl"
+        ]
+        Resource  = [
+          "${each.value.arn}",
+          "${each.value.arn}/*",
+        ]
+      }
+    ]
+  })
 }
 
 // Domain Certificate
@@ -62,12 +84,12 @@ locals {
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = aws_s3_bucket.bucket.bucket_regional_domain_name
+    domain_name = aws_s3_bucket.b["aecworks-bucket-prod"].bucket_regional_domain_name
     origin_id   = local.s3_origin_id
-
-    # s3_origin_config {
-    #   origin_access_identity = "origin-access-identity/cloudfront/ABCDEFG1234567"
-    # }
+  }
+  origin {
+    domain_name = aws_s3_bucket.b["aecworks-bucket-staging"].bucket_regional_domain_name
+    origin_id   = local.s3_origin_id
   }
 
   enabled             = true
