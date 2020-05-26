@@ -16,8 +16,8 @@
                 "s3:PutObjectAcl"
             ],
             "Resource": [
-                "arn:aws:s3:::$bucketname",
-                "arn:aws:s3:::$bucketname/*"
+                "${bucketarn}",
+                "${bucketarn}/*"
             ]
         }
     ]
