@@ -40,6 +40,17 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   policy = data.template_file.bucketpolicy.rendered
 }
 
+// Domain Certificate
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "static.aec.works"
+  validation_method = "DNS"
+  tags = {
+    Environment = "production"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 
 // Cloudfront
