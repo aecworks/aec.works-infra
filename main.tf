@@ -1,9 +1,3 @@
-// Variables
-variable "aws_region" {
-  type    = string
-  default = "us-west-1"
-}
-
 // Provider
 provider "aws" {
   version = "2.33.0"
@@ -11,9 +5,27 @@ provider "aws" {
 }
 
 
+// Templates
+data "template_file" "rolepolicy" {
+   template = file("rolepolicy.json")
+   vars = {
+     arn_gtalarico = "arn:aws:iam::245179060882:root"
+   }
+}
+
+data "template_file" "bucketpolicy" {
+   template = file("bucketpolicy.json")
+   vars = {
+     bucket_arn = aws_s3_bucket.bucket.arn
+     svc_role_arn = aws_iam_role.role.arn
+   }
+}
+
+
 // Resources
+
 resource "aws_s3_bucket" "bucket" {
-  bucket = "aecworks-bucket-prod"
+  bucket = "${var.project_name}-prod"
   acl    = "public-read"
 
   cors_rule {
@@ -25,16 +37,12 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-data "template_file" "bucketpolicy" {
-   template = file("bucketpolicy.json")
-
-   vars = {
-     bucketarn = aws_s3_bucket.bucket.arn
-   }
-}
-
-
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.bucket.id
   policy = data.template_file.bucketpolicy.rendered
+}
+
+resource "aws_iam_role" "role" {
+  name = "${var.project_name}-svc-role"
+  assume_role_policy = data.template_file.rolepolicy.rendered
 }

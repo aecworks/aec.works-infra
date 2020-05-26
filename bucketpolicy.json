@@ -5,7 +5,7 @@
         {
             "Effect": "Allow",
             "Principal": {
-                "AWS": "AIDATSFOPSKJMP4L674MT"
+                "AWS": "${svc_role_arn}"
             },
             "Action": [
                 "s3:PutObject",
@@ -16,8 +16,8 @@
                 "s3:PutObjectAcl"
             ],
             "Resource": [
-                "${bucketarn}",
-                "${bucketarn}/*"
+                "${bucket_arn}",
+                "${bucket_arn}/*"
             ]
         }
     ]
