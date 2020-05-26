@@ -7,20 +7,30 @@ provider "aws" {
 
 // Templates
 data "template_file" "rolepolicy" {
-   template = file("rolepolicy.json")
+   template = file("policies/rolepolicy.json")
+   # Who Can Assume
    vars = {
-     arn_gtalarico = "arn:aws:iam::245179060882:root"
+      svc_user = aws_iam_user.user.arn
    }
 }
 
 data "template_file" "bucketpolicy" {
-   template = file("bucketpolicy.json")
+   template = file("policies/bucketpolicy.json")
    vars = {
      bucket_arn = aws_s3_bucket.bucket.arn
-     svc_role_arn = aws_iam_role.role.arn
+     svc_user = aws_iam_user.user.arn
    }
 }
 
+
+resource "aws_iam_user" "lb" {
+  name = "loadbalancer"
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
 
 // Resources
 
@@ -42,7 +52,11 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   policy = data.template_file.bucketpolicy.rendered
 }
 
-resource "aws_iam_role" "role" {
-  name = "${var.project_name}-svc-role"
-  assume_role_policy = data.template_file.rolepolicy.rendered
+# resource "aws_iam_role" "role" {
+#   name = "${var.project_name}-svc-role"
+#   assume_role_policy = data.template_file.rolepolicy.rendered
+# }
+
+resource "aws_iam_user" "user" {
+  name = "${var.project_name}-svc-user"
 }

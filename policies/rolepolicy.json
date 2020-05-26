@@ -4,7 +4,9 @@
     {
     "Action": "sts:AssumeRole",
     "Principal": {
-        "AWS": "${arn_gtalarico}"
+        "AWS": [
+            "${svc_user}"
+        ]
     },
     "Effect": "Allow",
     "Sid": ""
