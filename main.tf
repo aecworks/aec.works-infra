@@ -58,7 +58,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
           "s3:PutObjectAcl"
         ]
         Resource  = [
-          "${each.value.arn}",
+          # "${each.value.arn}",
           "${each.value.arn}/*",
         ]
       }
