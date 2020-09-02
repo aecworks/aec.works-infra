@@ -49,21 +49,11 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
         Principal = {
           AWS: "*"
         }
-        Action    = ["*"]
+        Action    = [
+          "s3:ListBucket"
+        ]
         Resource  = [
           "${each.value.arn}",
-          "${each.value.arn}/*",
-        ]
-      },
-      {
-        Sid       = "S3PublicAllow"
-        Effect    = "Allow"
-        Principal = {
-          AWS: "*"
-        }
-        Action    = ["s3:GetObject"]
-        Resource  = [
-          "${each.value.arn}/*",
         ]
       },
       {
