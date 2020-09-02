@@ -44,6 +44,29 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     Id      = "bucketpolicy",
     Statement = [
       {
+        Sid       = "S3PublicBlock"
+        Effect    = "Deny"
+        Principal = {
+          AWS: "*"
+        }
+        Action    = ["*"]
+        Resource  = [
+          "${each.value.arn}",
+          "${each.value.arn}/*",
+        ]
+      },
+      {
+        Sid       = "S3PublicAllow"
+        Effect    = "Allow"
+        Principal = {
+          AWS: "*"
+        }
+        Action    = ["GetObject"]
+        Resource  = [
+          "${each.value.arn}/*",
+        ]
+      },
+      {
         Sid       = "S3AppManager"
         Effect    = "Allow"
         Principal = {
@@ -53,12 +76,12 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
           "s3:PutObject",
           "s3:GetObjectAcl",
           "s3:GetObject",
-          # "s3:ListBucket",
+          "s3:ListBucket",
           "s3:DeleteObject",
           "s3:PutObjectAcl"
         ]
         Resource  = [
-          # "${each.value.arn}",
+          "${each.value.arn}",
           "${each.value.arn}/*",
         ]
       }
