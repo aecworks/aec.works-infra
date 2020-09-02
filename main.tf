@@ -13,9 +13,15 @@ provider "aws" {
 
 // Resources
 
-// User
-resource "aws_iam_user" "user" {
-  name = "${var.project_name}-svc-user"
+// User Dev
+resource "aws_iam_user" "user_dev" {
+  name = "${var.project_name}-dev-svc-user"
+}
+
+
+// User Prod
+resource "aws_iam_user" "user_prod" {
+  name = "${var.project_name}-prod-svc-user"
 }
 
 
@@ -60,14 +66,15 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
         Sid       = "S3AppManager"
         Effect    = "Allow"
         Principal = {
-          AWS: "${aws_iam_user.user.arn}"
+          // Add Prod user to prod bucket, else dev
+          AWS: "${each.key == "aecworks-bucket-prod" ? aws_iam_user.user_prod.arn : aws_iam_user.user_dev.arn}"
         }
         Action    = [
           "s3:PutObject",
           "s3:GetObjectAcl",
           "s3:GetObject",
           "s3:ListBucket",
-          # "s3:DeleteObject",
+          "s3:DeleteObject",
           "s3:PutObjectAcl"
         ]
         Resource  = [
