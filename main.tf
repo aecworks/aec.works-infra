@@ -52,8 +52,9 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
       {
         Sid       = "S3PublicBlock"
         Effect    = "Deny"
-        Principal = {
-          AWS: "*"
+        NotPrincipal = {
+          // Add Prod user to prod bucket, else dev
+          AWS: "${each.key == "aecworks-bucket-prod" ? aws_iam_user.user_prod.arn : aws_iam_user.user_dev.arn}"
         }
         Action    = [
           "s3:ListBucket"
@@ -73,7 +74,6 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
           "s3:PutObject",
           "s3:GetObjectAcl",
           "s3:GetObject",
-          "s3:ListBucket",
           "s3:DeleteObject",
           "s3:PutObjectAcl"
         ]
