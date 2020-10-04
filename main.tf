@@ -52,8 +52,12 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
       {
         Sid       = "S3PublicBlock"
         Effect    = "Deny"
-        Principal = {
-          AWS: "*"
+        NotPrincipal = {
+          AWS: [
+            "arn:aws:iam::245179060882:root",
+            "arn:aws:iam::245179060882:user/tf-admin-user",
+            "${each.key == "aecworks-bucket-prod" ? aws_iam_user.user_prod.arn : aws_iam_user.user_dev.arn}"
+          ]
         }
         Action    = [
           "s3:ListBucket"
